@@ -1,18 +1,6 @@
 from urllib.request import urlretrieve
 import os
-from enum import Enum
-
-
-class SymbolsAmount(Enum):
-    zero = 0
-    one = 1
-    more = 2
-
-
-class PasswordLength(Enum):
-    very_short = -5
-    short = -3
-    normal = 0
+import getpass
 
 
 def get_blacklist_passwords():
@@ -29,7 +17,7 @@ def get_blacklist_passwords():
 
 
 def get_password():
-    return input("Введите пароль для проверки --> ")
+    return getpass.getpass("Введите пароль для проверки --> ")
 
 
 def password_contains_letters(password):
@@ -38,11 +26,11 @@ def password_contains_letters(password):
         if char.isalpha():
             letters_amount += 1
     if not letters_amount:
-        return SymbolsAmount.zero
-    if letters_amount >= 2:
-        return SymbolsAmount.more
+        condition = False
     else:
-        return SymbolsAmount.one
+        condition = True
+    return condition
+
 
 
 def password_contains_digits(password):
@@ -51,11 +39,10 @@ def password_contains_digits(password):
         if char.isdigit():
             digits_amount += 1
     if not digits_amount:
-        return SymbolsAmount.zero
-    if digits_amount >= 2:
-        return SymbolsAmount.more
+        condition = False
     else:
-        return SymbolsAmount.one
+        condition = True
+    return condition
 
 
 def password_is_of_different_case(password):
@@ -73,20 +60,21 @@ def password_is_of_different_case(password):
     if letters_in_password > 0:
         if chars_in_lower_case == letters_in_password or \
                         chars_in_upper_case == letters_in_password:
-            return False
+            condition = False
         else:
-            return True
+            condition = True
     else:
-        return True
+        condition = True
+
+    return condition
 
 
-def check_password_length(password):
-    if len(password) < 6:
-        return PasswordLength.very_short
+def password_length_is_ok(password):
     if len(password) < 8:
-        return PasswordLength.short
+        condition = False
     else:
-        return PasswordLength.normal
+        condition = True
+    return condition
 
 
 def password_contains_special_symbols(password):
@@ -97,18 +85,19 @@ def password_contains_special_symbols(password):
         else:
             special_symbols_count += 1
     if not special_symbols_count:
-        return False
+        condition = False
     else:
-        return True
+        condition = True
+    return condition
 
 
 def is_password_silly(password, silly_passwords):
     is_silly = False
     for bad_password in silly_passwords:
-        if password.find(bad_password) != -1:
+        if password in bad_password:
             is_silly = True
         else:
-            if bad_password.find(password) != -1:
+            if bad_password in password:
                 is_silly = True
     return is_silly
 
@@ -119,27 +108,21 @@ def count_password_strength(password, silly_passwords):
         return 1
     if not password_is_of_different_case(password):
         strength -= 2
-    if password_contains_digits(password) == SymbolsAmount.zero:
-        strength -= 2
-    if password_contains_digits(password) == SymbolsAmount.one:
+    if not password_contains_digits(password):
         strength -= 1
-    if password_contains_digits(password) == SymbolsAmount.more:
+    else:
         pass
-    if password_contains_letters(password) == SymbolsAmount.zero:
+    if not password_contains_letters(password):
         strength -= 2
-    if password_contains_letters(password) == SymbolsAmount.one:
-        strength -= 1
-    if password_contains_letters(password) == SymbolsAmount.more:
+    else:
         pass
     if password_contains_special_symbols(password):
         pass
     else:
         strength -= 1
-    if check_password_length(password) == PasswordLength.very_short:
+    if not password_length_is_ok(password):
         strength -= 5
-    if check_password_length(password) == PasswordLength.short:
-        strength -= 3
-    if check_password_length(password) == PasswordLength.normal:
+    else:
         pass
     return strength
 
@@ -147,7 +130,7 @@ def count_password_strength(password, silly_passwords):
 def main():
     password = get_password()
     silly_passwords = get_blacklist_passwords()
-    result_strength =  count_password_strength(password, silly_passwords)
+    result_strength = count_password_strength(password, silly_passwords)
     print("Сложность Вашего пароля:", result_strength)
 
 
