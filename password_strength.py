@@ -47,9 +47,9 @@ def password_is_of_different_case(password):
         if char.isupper() and char.isalpha():
             chars_in_upper_case += 1
             alphas_in_password += 1
-    in_one_case = chars_in_lower_case == alphas_in_password or \
+    alphas_in_one_case = chars_in_lower_case == alphas_in_password or \
                   chars_in_upper_case == alphas_in_password
-    return alphas_in_password <= 0 or not in_one_case
+    return alphas_in_password <= 0 or not alphas_in_one_case
 
 
 def password_length_is_ok(password):
