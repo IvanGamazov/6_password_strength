@@ -25,12 +25,7 @@ def password_contains_letters(password):
     for char in password:
         if char.isalpha():
             letters_amount += 1
-    if not letters_amount:
-        condition = False
-    else:
-        condition = True
-    return condition
-
+    return letters_amount > 0
 
 
 def password_contains_digits(password):
@@ -38,67 +33,42 @@ def password_contains_digits(password):
     for char in password:
         if char.isdigit():
             digits_amount += 1
-    if not digits_amount:
-        condition = False
-    else:
-        condition = True
-    return condition
+    return digits_amount > 0
 
 
 def password_is_of_different_case(password):
     chars_in_upper_case = 0
     chars_in_lower_case = 0
-    letters_in_password = 0
+    alphas_in_password = 0
     for char in password:
-        if char.isalpha():
-            if char.islower():
-                chars_in_lower_case += 1
-                letters_in_password += 1
-            if char.isupper():
-                chars_in_upper_case += 1
-                letters_in_password += 1
-    if letters_in_password > 0:
-        if chars_in_lower_case == letters_in_password or \
-                        chars_in_upper_case == letters_in_password:
-            condition = False
-        else:
-            condition = True
-    else:
-        condition = True
-
-    return condition
+        if char.islower() and char.isalpha():
+            chars_in_lower_case += 1
+            alphas_in_password += 1
+        if char.isupper() and char.isalpha():
+            chars_in_upper_case += 1
+            alphas_in_password += 1
+    in_one_case = chars_in_lower_case == alphas_in_password or \
+                  chars_in_upper_case == alphas_in_password
+    return alphas_in_password <= 0 or not in_one_case
 
 
 def password_length_is_ok(password):
-    if len(password) < 8:
-        condition = False
-    else:
-        condition = True
-    return condition
+    return len(password) >= 8
 
 
 def password_contains_special_symbols(password):
     special_symbols_count = 0
     for char in password:
-        if char.isalnum():
-            pass
-        else:
+        if not char.isalnum():
             special_symbols_count += 1
-    if not special_symbols_count:
-        condition = False
-    else:
-        condition = True
-    return condition
+    return special_symbols_count > 0
 
 
 def is_password_silly(password, silly_passwords):
     is_silly = False
     for bad_password in silly_passwords:
-        if password in bad_password:
+        if password in bad_password or bad_password in password:
             is_silly = True
-        else:
-            if bad_password in password:
-                is_silly = True
     return is_silly
 
 
@@ -110,29 +80,16 @@ def count_password_strength(password, silly_passwords):
         strength -= 2
     if not password_contains_digits(password):
         strength -= 1
-    else:
-        pass
     if not password_contains_letters(password):
         strength -= 2
-    else:
-        pass
-    if password_contains_special_symbols(password):
-        pass
-    else:
+    if not password_contains_special_symbols(password):
         strength -= 1
     if not password_length_is_ok(password):
         strength -= 5
-    else:
-        pass
     return strength
 
-
-def main():
+if __name__ == '__main__':
     password = get_password()
     silly_passwords = get_blacklist_passwords()
     result_strength = count_password_strength(password, silly_passwords)
     print("Сложность Вашего пароля:", result_strength)
-
-
-if __name__ == '__main__':
-    main()
